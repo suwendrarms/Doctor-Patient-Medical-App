@@ -4,15 +4,13 @@ import { Home, ListChecks, Activity, FlaskConical, User } from 'lucide-react-nat
 import { NurseHome } from './screens/NurseHome';
 import { TriageQueueScreen } from './screens/TriageQueue';
 import { CaptureVitals } from './screens/CaptureVitals';
-import { StubScreen } from '../../screens/StubScreen';
+import { LabSamples } from './screens/LabSamples';
+import { NurseProfile } from './screens/NurseProfile';
 import { roleThemes } from '../../design-system/tokens';
 import { useTheme } from '../../design-system/theme';
 
 const Tab = createBottomTabNavigator();
 const role = roleThemes.nurse;
-
-const Lab = () => <StubScreen role="nurse" title="Lab Samples" message="Track sample collection, barcode labels, and result attachment." />;
-const Profile = () => <StubScreen role="nurse" title="Profile" message="Shift, certifications, theme, sign out." />;
 
 export function NurseShell() {
   const t = useTheme();
@@ -52,12 +50,12 @@ export function NurseShell() {
       />
       <Tab.Screen
         name="Lab"
-        component={Lab}
+        component={LabSamples}
         options={{ tabBarIcon: ({ color, size }) => <FlaskConical color={color} size={size} /> }}
       />
       <Tab.Screen
         name="Profile"
-        component={Profile}
+        component={NurseProfile}
         options={{ tabBarIcon: ({ color, size }) => <User color={color} size={size} /> }}
       />
     </Tab.Navigator>

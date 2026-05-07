@@ -13,7 +13,7 @@ import { useTheme } from '../../../design-system/theme';
 import { lastVitals } from '../../../data/fixtures';
 import { Activity, Pill as PillIcon, Plus, FileText } from 'lucide-react-native';
 
-export function PatientRecord({ route }: any) {
+export function PatientRecord({ route, navigation }: any) {
   const t = useTheme();
   const role = roleThemes.doctor;
   const patient = route?.params?.patient ?? { patientName: 'Patient', reason: '', number: 0 };
@@ -62,7 +62,7 @@ export function PatientRecord({ route }: any) {
         variant="solid"
         gradient={[role.gradientFrom, role.gradientTo]}
         icon={<Plus color="#fff" size={18} />}
-        onPress={() => {}}
+        onPress={() => navigation.navigate('AddDiagnosis')}
       />
       <View style={{ height: spacing.sm }} />
       <PrimaryButton
@@ -70,7 +70,7 @@ export function PatientRecord({ route }: any) {
         variant="outline"
         accent={role.accent}
         icon={<PillIcon color={role.accent} size={18} />}
-        onPress={() => {}}
+        onPress={() => navigation.navigate('IssuePrescription')}
       />
     </ScreenContainer>
   );

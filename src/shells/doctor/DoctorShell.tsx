@@ -5,6 +5,10 @@ import { Home, Stethoscope, ScanLine, Video, User } from 'lucide-react-native';
 import { DoctorHome } from './screens/DoctorHome';
 import { DoctorQueue } from './screens/DoctorQueue';
 import { PatientRecord } from './screens/PatientRecord';
+import { AddDiagnosis } from './screens/AddDiagnosis';
+import { IssuePrescription } from './screens/IssuePrescription';
+import { Telemedicine } from './screens/Telemedicine';
+import { DoctorProfile } from './screens/DoctorProfile';
 import { StubScreen } from '../../screens/StubScreen';
 import { roleThemes } from '../../design-system/tokens';
 import { useTheme } from '../../design-system/theme';
@@ -18,6 +22,8 @@ function HomeStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="DoctorHomeMain" component={DoctorHome} />
       <Stack.Screen name="PatientRecord" component={PatientRecord} options={{ headerShown: true, title: 'Patient Record' }} />
+      <Stack.Screen name="AddDiagnosis" component={AddDiagnosis} options={{ headerShown: true, title: 'Add Diagnosis' }} />
+      <Stack.Screen name="IssuePrescription" component={IssuePrescription} options={{ headerShown: true, title: 'Issue Prescription' }} />
     </Stack.Navigator>
   );
 }
@@ -27,18 +33,14 @@ function QueueStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="DoctorQueueMain" component={DoctorQueue} />
       <Stack.Screen name="PatientRecord" component={PatientRecord} options={{ headerShown: true, title: 'Patient Record' }} />
+      <Stack.Screen name="AddDiagnosis" component={AddDiagnosis} options={{ headerShown: true, title: 'Add Diagnosis' }} />
+      <Stack.Screen name="IssuePrescription" component={IssuePrescription} options={{ headerShown: true, title: 'Issue Prescription' }} />
     </Stack.Navigator>
   );
 }
 
 function ScanStub() {
-  return <StubScreen role="doctor" title="Scan Patient QR" message="Vision Camera + ML Kit barcode reader. Phase 1 stub." />;
-}
-function Telemedicine() {
-  return <StubScreen role="doctor" title="Telemedicine" message="WebRTC console with structured notes panel." />;
-}
-function Profile() {
-  return <StubScreen role="doctor" title="Profile" message="License, signature, schedule, theme & sign out." />;
+  return <StubScreen role="doctor" title="Scan Patient QR" message="Vision Camera + ML Kit barcode reader. Point at the patient QR to open their record instantly." />;
 }
 
 export function DoctorShell() {
@@ -80,11 +82,14 @@ export function DoctorShell() {
       <Tab.Screen
         name="Telemedicine"
         component={Telemedicine}
-        options={{ tabBarIcon: ({ color, size }) => <Video color={color} size={size} /> }}
+        options={{
+          title: 'Tele',
+          tabBarIcon: ({ color, size }) => <Video color={color} size={size} />,
+        }}
       />
       <Tab.Screen
         name="Profile"
-        component={Profile}
+        component={DoctorProfile}
         options={{ tabBarIcon: ({ color, size }) => <User color={color} size={size} /> }}
       />
     </Tab.Navigator>

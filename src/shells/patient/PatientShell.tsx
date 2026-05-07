@@ -4,31 +4,13 @@ import { QrCode, Home, Calendar, Pill, User } from 'lucide-react-native';
 import { PatientHome } from './screens/PatientHome';
 import { MyQR } from './screens/MyQR';
 import { PatientAppointments } from './screens/PatientAppointments';
-import { StubScreen } from '../../screens/StubScreen';
+import { PrescriptionsScreen } from './screens/Prescriptions';
+import { PatientProfile } from './screens/PatientProfile';
 import { roleThemes } from '../../design-system/tokens';
 import { useTheme } from '../../design-system/theme';
 
 const Tab = createBottomTabNavigator();
 const role = roleThemes.patient;
-
-function Prescriptions() {
-  return (
-    <StubScreen
-      role="patient"
-      title="My Medications"
-      message="Active prescriptions, refill requests, and dose reminders."
-    />
-  );
-}
-function Profile() {
-  return (
-    <StubScreen
-      role="patient"
-      title="Profile & Consent"
-      message="Personal info, family members, consent history, language and theme settings."
-    />
-  );
-}
 
 export function PatientShell() {
   const t = useTheme();
@@ -68,12 +50,15 @@ export function PatientShell() {
       />
       <Tab.Screen
         name="Prescriptions"
-        component={Prescriptions}
-        options={{ tabBarIcon: ({ color, size }) => <Pill color={color} size={size} /> }}
+        component={PrescriptionsScreen}
+        options={{
+          title: 'Meds',
+          tabBarIcon: ({ color, size }) => <Pill color={color} size={size} />,
+        }}
       />
       <Tab.Screen
         name="Profile"
-        component={Profile}
+        component={PatientProfile}
         options={{ tabBarIcon: ({ color, size }) => <User color={color} size={size} /> }}
       />
     </Tab.Navigator>

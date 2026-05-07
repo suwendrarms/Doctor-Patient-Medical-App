@@ -3,22 +3,27 @@ import { AuthUser } from '../data/types';
 
 type AuthState = {
   user: AuthUser | null;
+  onboardingDone: boolean;
   signIn: (user: AuthUser) => void;
   signOut: () => void;
+  finishOnboarding: () => void;
 };
 
 const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [onboardingDone, setOnboardingDone] = useState(false);
 
   const value = useMemo<AuthState>(
     () => ({
       user,
+      onboardingDone,
       signIn: setUser,
       signOut: () => setUser(null),
+      finishOnboarding: () => setOnboardingDone(true),
     }),
-    [user],
+    [user, onboardingDone],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

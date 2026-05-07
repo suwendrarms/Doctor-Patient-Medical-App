@@ -1,18 +1,28 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Home, Users, Database, BarChart3, Settings } from 'lucide-react-native';
 import { AdminHome } from './screens/AdminHome';
 import { UserManagement } from './screens/UserManagement';
 import { MasterData } from './screens/MasterData';
-import { StubScreen } from '../../screens/StubScreen';
+import { Reports } from './screens/Reports';
+import { AdminSettings } from './screens/AdminSettings';
+import { AuditLog } from './screens/AuditLog';
 import { roleThemes } from '../../design-system/tokens';
 import { useTheme } from '../../design-system/theme';
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 const role = roleThemes.admin;
 
-const Reports = () => <StubScreen role="admin" title="KPI Reports" message="Clinical, operational, security and user KPIs with scheduled exports." />;
-const SettingsScreen = () => <StubScreen role="admin" title="Settings" message="Branches, feature flags, integrations, audit retention." />;
+function SettingsStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="AdminSettingsMain" component={AdminSettings} />
+      <Stack.Screen name="AuditLog" component={AuditLog} options={{ headerShown: true, title: 'Audit Log' }} />
+    </Stack.Navigator>
+  );
+}
 
 export function AdminShell() {
   const t = useTheme();
@@ -59,7 +69,7 @@ export function AdminShell() {
       />
       <Tab.Screen
         name="Settings"
-        component={SettingsScreen}
+        component={SettingsStack}
         options={{ tabBarIcon: ({ color, size }) => <Settings color={color} size={size} /> }}
       />
     </Tab.Navigator>

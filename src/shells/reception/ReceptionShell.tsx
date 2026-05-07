@@ -4,15 +4,13 @@ import { Home, ListChecks, ScanLine, CreditCard, User } from 'lucide-react-nativ
 import { ReceptionHome } from './screens/ReceptionHome';
 import { LiveQueue } from './screens/LiveQueue';
 import { CheckIn } from './screens/CheckIn';
-import { StubScreen } from '../../screens/StubScreen';
+import { Insurance } from './screens/Insurance';
+import { ReceptionProfile } from './screens/ReceptionProfile';
 import { roleThemes } from '../../design-system/tokens';
 import { useTheme } from '../../design-system/theme';
 
 const Tab = createBottomTabNavigator();
 const role = roleThemes.reception;
-
-const Insurance = () => <StubScreen role="reception" title="Insurance" message="Eligibility check, pre-authorization, claim submission." />;
-const Profile = () => <StubScreen role="reception" title="Profile" message="Shift schedule, theme, sign out." />;
 
 export function ReceptionShell() {
   const t = useTheme();
@@ -57,7 +55,7 @@ export function ReceptionShell() {
       />
       <Tab.Screen
         name="Profile"
-        component={Profile}
+        component={ReceptionProfile}
         options={{ tabBarIcon: ({ color, size }) => <User color={color} size={size} /> }}
       />
     </Tab.Navigator>
