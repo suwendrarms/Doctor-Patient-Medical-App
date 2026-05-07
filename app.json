@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Medix",
+    "slug": "medix-unified-mobile",
+    "scheme": "medix",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#0F172A"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.medix.unified"
+    },
+    "android": {
+      "package": "com.medix.unified"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-font"
+    ]
+  }
+}
