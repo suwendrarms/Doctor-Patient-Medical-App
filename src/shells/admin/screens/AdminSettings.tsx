@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Text, View, StyleSheet, Switch } from 'react-native';
+import { useRouter } from 'expo-router';
 import {
   ScreenContainer,
   Card,
@@ -23,7 +24,8 @@ import {
   FileSearch,
 } from 'lucide-react-native';
 
-export function AdminSettings({ navigation }: any) {
+export function AdminSettings() {
+  const router = useRouter();
   const t = useTheme();
   const role = roleThemes.admin;
   const { signOut } = useAuth();
@@ -96,7 +98,7 @@ export function AdminSettings({ navigation }: any) {
           title="Audit Log Viewer"
           subtitle="Search and export event records"
           leading={<FileSearch color={role.accent} size={22} />}
-          onPress={() => navigation.navigate('AuditLog')}
+          onPress={() => router.push('/(admin)/audit')}
         />
       </Card>
 

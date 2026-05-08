@@ -1,5 +1,6 @@
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
 import {
   ScreenContainer,
   GradientHero,
@@ -16,7 +17,8 @@ import { useAuth } from '../../../auth/AuthContext';
 import { facilityKpis, masterUpdates } from '../../../data/fixtures';
 import { Activity, ShieldAlert, Users, Database } from 'lucide-react-native';
 
-export function AdminHome({ navigation }: any) {
+export function AdminHome() {
+  const router = useRouter();
   const t = useTheme();
   const role = roleThemes.admin;
   const { user, signOut } = useAuth();
@@ -50,7 +52,7 @@ export function AdminHome({ navigation }: any) {
       <SectionHeader
         title="Master data requests"
         accent={role.accent}
-        action={{ label: 'See all', onPress: () => navigation.navigate('MasterData') }}
+        action={{ label: 'See all', onPress: () => router.push('/(admin)/(tabs)/masters') }}
       />
       {masterUpdates.map((m) => (
         <ListRow
@@ -64,7 +66,7 @@ export function AdminHome({ navigation }: any) {
               tone={m.status === 'PENDING' ? 'warning' : 'success'}
             />
           }
-          onPress={() => navigation.navigate('MasterData')}
+          onPress={() => router.push('/(admin)/(tabs)/masters')}
         />
       ))}
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
 import {
   ScreenContainer,
   GradientHero,
@@ -16,7 +17,8 @@ import { useAuth } from '../../../auth/AuthContext';
 import { triageQueue } from '../../../data/fixtures';
 import { Activity, FlaskConical, Syringe, AlertOctagon } from 'lucide-react-native';
 
-export function NurseHome({ navigation }: any) {
+export function NurseHome() {
+  const router = useRouter();
   const t = useTheme();
   const role = roleThemes.nurse;
   const { user, signOut } = useAuth();
@@ -34,7 +36,7 @@ export function NurseHome({ navigation }: any) {
           variant="solid"
           gradient={['#fff', '#D1FAE5']}
           icon={<Activity color={role.accent} size={18} />}
-          onPress={() => navigation.navigate('Vitals')}
+          onPress={() => router.push('/(nurse)/vitals')}
           style={{ alignSelf: 'flex-start' }}
         />
       </GradientHero>

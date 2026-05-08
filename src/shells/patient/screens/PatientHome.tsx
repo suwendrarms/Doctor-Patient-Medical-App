@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Bell, Calendar, Pill as PillIcon, Activity, Footprints } from 'lucide-react-native';
 import {
   ScreenContainer,
@@ -17,7 +18,8 @@ import { useTheme } from '../../../design-system/theme';
 import { useAuth } from '../../../auth/AuthContext';
 import { myAppointments, myPrescriptions } from '../../../data/fixtures';
 
-export function PatientHome({ navigation }: any) {
+export function PatientHome() {
+  const router = useRouter();
   const t = useTheme();
   const role = roleThemes.patient;
   const { user, signOut } = useAuth();
@@ -41,7 +43,7 @@ export function PatientHome({ navigation }: any) {
           label="Show My QR"
           variant="solid"
           gradient={['#fff', '#E0E7FF']}
-          onPress={() => navigation.navigate('MyQR')}
+          onPress={() => router.push('/(patient)/qr')}
           style={{ alignSelf: 'flex-start' }}
         />
       </GradientHero>
@@ -54,7 +56,7 @@ export function PatientHome({ navigation }: any) {
       <SectionHeader
         title="Next Appointment"
         accent={role.accent}
-        action={{ label: 'See all', onPress: () => navigation.navigate('Appointments') }}
+        action={{ label: 'See all', onPress: () => router.push('/(patient)/appointments') }}
       />
       {next ? (
         <Card>

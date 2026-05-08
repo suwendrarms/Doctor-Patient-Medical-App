@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Text, View, StyleSheet, TextInput } from 'react-native';
+import { useRouter } from 'expo-router';
 import {
   ScreenContainer,
   Card,
@@ -22,7 +23,8 @@ type RxItem = {
 const drugSuggestions = ['Metformin 500mg', 'Atorvastatin 10mg', 'Losartan 50mg', 'Amoxicillin 500mg'];
 const frequencies = ['OD', 'BD', 'TDS', 'QID', 'SOS', 'HS'];
 
-export function IssuePrescription({ navigation }: any) {
+export function IssuePrescription() {
+  const router = useRouter();
   const t = useTheme();
   const role = roleThemes.doctor;
   const [items, setItems] = useState<RxItem[]>([
@@ -127,7 +129,7 @@ export function IssuePrescription({ navigation }: any) {
         variant="solid"
         gradient={[role.gradientFrom, role.gradientTo]}
         icon={<Send color="#fff" size={18} />}
-        onPress={() => navigation.goBack()}
+        onPress={() => router.back()}
       />
       <View style={{ height: spacing.sm }} />
       <PrimaryButton label="Save as draft" variant="outline" accent={role.accent} onPress={() => {}} />

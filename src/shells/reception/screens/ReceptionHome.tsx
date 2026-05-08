@@ -1,5 +1,6 @@
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
 import {
   ScreenContainer,
   GradientHero,
@@ -17,7 +18,8 @@ import { useAuth } from '../../../auth/AuthContext';
 import { todayQueue } from '../../../data/fixtures';
 import { ScanLine, Users, Clock } from 'lucide-react-native';
 
-export function ReceptionHome({ navigation }: any) {
+export function ReceptionHome() {
+  const router = useRouter();
   const t = useTheme();
   const role = roleThemes.reception;
   const { user, signOut } = useAuth();
@@ -35,7 +37,7 @@ export function ReceptionHome({ navigation }: any) {
           variant="solid"
           gradient={['#fff', '#FED7AA']}
           icon={<ScanLine color={role.accent} size={18} />}
-          onPress={() => navigation.navigate('CheckIn')}
+          onPress={() => router.push('/(reception)/checkin')}
           style={{ alignSelf: 'flex-start' }}
         />
       </GradientHero>
@@ -45,7 +47,7 @@ export function ReceptionHome({ navigation }: any) {
         <StatCard label="AVG WAIT" value="14m" delta="-3m vs yesterday" accent={role.accent} icon={<Clock size={18} color={role.accent} />} />
       </View>
 
-      <SectionHeader title="Doctors on duty" accent={role.accent} action={{ label: 'See queue', onPress: () => navigation.navigate('Queue') }} />
+      <SectionHeader title="Doctors on duty" accent={role.accent} action={{ label: 'See queue', onPress: () => router.push('/(reception)/queue') }} />
       <Card>
         <Row name="Dr. Samanthi Fernando" status="In consult" tone="success" />
         <Row name="Dr. Asanka Bandara" status="Free in 5m" tone="info" />

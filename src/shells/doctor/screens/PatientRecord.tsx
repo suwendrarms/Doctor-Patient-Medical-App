@@ -1,5 +1,6 @@
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   ScreenContainer,
   Card,
@@ -10,13 +11,17 @@ import {
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
-import { lastVitals } from '../../../data/fixtures';
+import { lastVitals, todayQueue } from '../../../data/fixtures';
 import { Activity, Pill as PillIcon, Plus, FileText } from 'lucide-react-native';
 
-export function PatientRecord({ route, navigation }: any) {
+export function PatientRecord() {
+  const router = useRouter();
+  const { id } = useLocalSearchParams<{ id?: string }>();
   const t = useTheme();
   const role = roleThemes.doctor;
-  const patient = route?.params?.patient ?? { patientName: 'Patient', reason: '', number: 0 };
+  const patient =
+    todayQueue.find((q) => q.id === id) ??
+    { id: '', patientName: 'Patient', reason: '', number: 0 };
 
   return (
     <ScreenContainer>
@@ -62,7 +67,7 @@ export function PatientRecord({ route, navigation }: any) {
         variant="solid"
         gradient={[role.gradientFrom, role.gradientTo]}
         icon={<Plus color="#fff" size={18} />}
-        onPress={() => navigation.navigate('AddDiagnosis')}
+        onPress={() => router.push('/(doctor)/add-diagnosis')}
       />
       <View style={{ height: spacing.sm }} />
       <PrimaryButton
@@ -70,7 +75,7 @@ export function PatientRecord({ route, navigation }: any) {
         variant="outline"
         accent={role.accent}
         icon={<PillIcon color={role.accent} size={18} />}
-        onPress={() => navigation.navigate('IssuePrescription')}
+        onPress={() => router.push('/(doctor)/issue-prescription')}
       />
     </ScreenContainer>
   );

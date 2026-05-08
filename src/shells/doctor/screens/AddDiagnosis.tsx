@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Text, View, StyleSheet, TextInput } from 'react-native';
+import { useRouter } from 'expo-router';
 import {
   ScreenContainer,
   Card,
@@ -18,7 +19,8 @@ const suggestions = [
   { code: 'L20.9', name: 'Atopic dermatitis, unspecified' },
 ];
 
-export function AddDiagnosis({ navigation }: any) {
+export function AddDiagnosis() {
+  const router = useRouter();
   const t = useTheme();
   const role = roleThemes.doctor;
   const [q, setQ] = useState('');
@@ -121,14 +123,14 @@ export function AddDiagnosis({ navigation }: any) {
         label="Save diagnosis"
         variant="solid"
         gradient={[role.gradientFrom, role.gradientTo]}
-        onPress={() => navigation.goBack()}
+        onPress={() => router.back()}
       />
       <View style={{ height: spacing.sm }} />
       <PrimaryButton
         label="Save & issue prescription"
         variant="outline"
         accent={role.accent}
-        onPress={() => navigation.replace('IssuePrescription')}
+        onPress={() => router.replace('/(doctor)/issue-prescription')}
       />
     </ScreenContainer>
   );

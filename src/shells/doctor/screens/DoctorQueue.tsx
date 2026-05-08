@@ -1,5 +1,6 @@
 import React from 'react';
 import { Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import {
   ScreenContainer,
   Pill,
@@ -14,7 +15,8 @@ import { todayQueue } from '../../../data/fixtures';
 import { ScanLine } from 'lucide-react-native';
 import { useAuth } from '../../../auth/AuthContext';
 
-export function DoctorQueue({ navigation }: any) {
+export function DoctorQueue() {
+  const router = useRouter();
   const t = useTheme();
   const role = roleThemes.doctor;
   const { user } = useAuth();
@@ -34,7 +36,7 @@ export function DoctorQueue({ navigation }: any) {
         variant="solid"
         gradient={[role.gradientFrom, role.gradientTo]}
         icon={<ScanLine color="#fff" size={18} />}
-        onPress={() => navigation.navigate('PatientRecord', { patient: mine[0] })}
+        onPress={() => router.push({ pathname: '/(doctor)/patient', params: { id: mine[0]?.id ?? '' } })}
         style={{ marginTop: spacing.lg }}
       />
 
@@ -54,7 +56,7 @@ export function DoctorQueue({ navigation }: any) {
               />
             </View>
           }
-          onPress={() => navigation.navigate('PatientRecord', { patient: q })}
+          onPress={() => router.push({ pathname: '/(doctor)/patient', params: { id: q.id } })}
         />
       ))}
     </ScreenContainer>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
 import { ScanLine, AlertTriangle, Stethoscope, Activity } from 'lucide-react-native';
 import {
   ScreenContainer,
@@ -17,7 +18,8 @@ import { useTheme } from '../../../design-system/theme';
 import { useAuth } from '../../../auth/AuthContext';
 import { todayQueue } from '../../../data/fixtures';
 
-export function DoctorHome({ navigation }: any) {
+export function DoctorHome() {
+  const router = useRouter();
   const t = useTheme();
   const role = roleThemes.doctor;
   const { user, signOut } = useAuth();
@@ -36,7 +38,7 @@ export function DoctorHome({ navigation }: any) {
           variant="solid"
           gradient={['#fff', '#D1FAE5']}
           icon={<ScanLine color={role.accent} size={18} />}
-          onPress={() => navigation.navigate('Queue')}
+          onPress={() => router.push('/(doctor)/(tabs)/queue')}
           style={{ alignSelf: 'flex-start' }}
         />
       </GradientHero>
@@ -58,7 +60,7 @@ export function DoctorHome({ navigation }: any) {
         />
       </View>
 
-      <SectionHeader title="Up next" accent={role.accent} action={{ label: 'See queue', onPress: () => navigation.navigate('Queue') }} />
+      <SectionHeader title="Up next" accent={role.accent} action={{ label: 'See queue', onPress: () => router.push('/(doctor)/(tabs)/queue') }} />
       {myCases.slice(0, 3).map((q) => (
         <ListRow
           key={q.id}
@@ -72,7 +74,7 @@ export function DoctorHome({ navigation }: any) {
               tone={q.severity >= 4 ? 'critical' : q.severity >= 3 ? 'warning' : 'success'}
             />
           }
-          onPress={() => navigation.navigate('PatientRecord', { patient: q })}
+          onPress={() => router.push({ pathname: '/(doctor)/patient', params: { id: q.id } })}
         />
       ))}
 
