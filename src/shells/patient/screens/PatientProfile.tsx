@@ -11,6 +11,7 @@ import {
   Pill,
   useToast,
   useConfirm,
+  ThemeModeToggle,
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
@@ -198,10 +199,15 @@ export function PatientProfile() {
           </View>
         </View>
         <Divider />
-        <View style={styles.prefRow}>
-          <Moon size={20} color={role.accent} />
-          <Text style={[typography.body, { color: t.text, flex: 1 }]}>Use device theme</Text>
-          <Pill label={t.mode === 'dark' ? 'Dark' : 'Light'} tone="info" />
+        <View style={styles.themeRow}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+            <Moon size={20} color={role.accent} />
+            <Text style={[typography.body, { color: t.text, flex: 1 }]}>Appearance</Text>
+            <Pill label={t.mode === 'dark' ? 'Dark' : 'Light'} tone="info" />
+          </View>
+          <View style={{ marginTop: spacing.sm }}>
+            <ThemeModeToggle accent={role.accent} />
+          </View>
         </View>
         <Divider />
         <View style={styles.prefRow}>
@@ -282,6 +288,7 @@ const styles = StyleSheet.create({
   field: { flexDirection: 'row', paddingVertical: spacing.sm },
   consentRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.sm },
   prefRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.sm },
+  themeRow: { paddingVertical: spacing.sm },
   langChip: {
     paddingHorizontal: 10,
     paddingVertical: 6,

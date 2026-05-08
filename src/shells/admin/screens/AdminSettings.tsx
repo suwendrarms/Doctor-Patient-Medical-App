@@ -10,6 +10,7 @@ import {
   SectionHeader,
   useToast,
   useConfirm,
+  ThemeModeToggle,
 } from '../../../design-system/components';
 import { useStore } from '../../../store';
 import { roleThemes, spacing, typography } from '../../../design-system/tokens';
@@ -24,6 +25,7 @@ import {
   Webhook,
   ChevronRight,
   FileSearch,
+  Moon,
 } from 'lucide-react-native';
 
 export function AdminSettings() {
@@ -72,6 +74,22 @@ export function AdminSettings() {
           onPress={() => toast.show(`${b.name} - ${b.code}`, 'info')}
         />
       ))}
+
+      <SectionHeader title="Appearance" accent={role.accent} />
+      <Card>
+        <View style={styles.flagRow}>
+          <Moon size={20} color={role.accent} />
+          <View style={{ flex: 1 }}>
+            <Text style={[typography.bodyBold, { color: t.text }]}>Theme</Text>
+            <Text style={[typography.caption, { color: t.textMuted }]}>
+              Currently {t.mode === 'dark' ? 'Dark' : 'Light'} mode
+            </Text>
+          </View>
+        </View>
+        <View style={{ paddingTop: 4, paddingBottom: spacing.xs }}>
+          <ThemeModeToggle accent={role.accent} />
+        </View>
+      </Card>
 
       <SectionHeader title="Feature flags" accent={role.accent} />
       <Card>

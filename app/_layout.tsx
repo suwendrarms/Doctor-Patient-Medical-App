@@ -1,8 +1,12 @@
 import 'react-native-gesture-handler';
 import React, { useCallback, useEffect } from 'react';
-import { View, useColorScheme } from 'react-native';
+import { View } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
-import { ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import {
+  ThemeProvider as NavThemeProvider,
+  DefaultTheme,
+  DarkTheme,
+} from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
@@ -17,11 +21,11 @@ import { Manrope_700Bold } from '@expo-google-fonts/manrope';
 
 import { AuthProvider, useAuth } from '../src/auth/AuthContext';
 import { ToastProvider, ConfirmProvider } from '../src/design-system/components';
+import { ThemeProvider, useTheme } from '../src/design-system/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
-  const scheme = useColorScheme();
   const [fontsLoaded] = useInter({
     Inter_400Regular,
     Inter_500Medium,
@@ -40,24 +44,32 @@ export default function RootLayout() {
 
   if (!fontsLoaded) return <View style={{ flex: 1, backgroundColor: '#0F172A' }} />;
 
-  const navTheme =
-    scheme === 'dark'
-      ? { ...DarkTheme, colors: { ...DarkTheme.colors, background: '#0B1220' } }
-      : { ...DefaultTheme, colors: { ...DefaultTheme.colors, background: '#F8FAFC' } };
-
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <ThemeProvider value={navTheme}>
+      <ThemeProvider>
+        <AuthProvider>
           <ToastProvider>
             <ConfirmProvider>
-              <StatusBar style="auto" />
-              <AuthGate />
+              <ThemedShell />
             </ConfirmProvider>
           </ToastProvider>
-        </ThemeProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
+  );
+}
+
+function ThemedShell() {
+  const t = useTheme();
+  const navTheme =
+    t.mode === 'dark'
+      ? { ...DarkTheme, colors: { ...DarkTheme.colors, background: t.bg } }
+      : { ...DefaultTheme, colors: { ...DefaultTheme.colors, background: t.bg } };
+  return (
+    <NavThemeProvider value={navTheme}>
+      <StatusBar style={t.mode === 'dark' ? 'light' : 'dark'} />
+      <AuthGate />
+    </NavThemeProvider>
   );
 }
 

@@ -9,11 +9,12 @@ import {
   SectionHeader,
   useConfirm,
   useToast,
+  ThemeModeToggle,
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
 import { useAuth } from '../../../auth/AuthContext';
-import { Calendar, Bell, LogOut, Globe } from 'lucide-react-native';
+import { Calendar, Bell, LogOut, Globe, Moon } from 'lucide-react-native';
 
 const languages = ['English', 'සිංහල', 'தமிழ்'];
 
@@ -55,6 +56,18 @@ export function ReceptionProfile() {
         <Row icon={<Calendar color={role.accent} size={20} />} label="Coverage" value="OPD-Lobby + Phone" />
         <Divider />
         <Row icon={<Calendar color={role.accent} size={20} />} label="Next shift swap" value="Sat 11 May - 12 PM" />
+      </Card>
+
+      <SectionHeader title="Appearance" accent={role.accent} />
+      <Card>
+        <View style={styles.prefRow}>
+          <Moon size={20} color={role.accent} />
+          <Text style={[typography.body, { color: t.text, flex: 1 }]}>Theme</Text>
+          <Text style={[typography.caption, { color: t.textMuted }]}>{t.mode === 'dark' ? 'Dark' : 'Light'}</Text>
+        </View>
+        <View style={{ paddingTop: 4, paddingBottom: spacing.xs }}>
+          <ThemeModeToggle accent={role.accent} />
+        </View>
       </Card>
 
       <SectionHeader title="Preferences" accent={role.accent} />

@@ -10,3 +10,4 @@ export { EmptyState } from './EmptyState';
 export { SectionHeader } from './SectionHeader';
 export { ToastProvider, useToast } from './Toast';
 export { ConfirmProvider, useConfirm } from './ConfirmDialog';
+export { ThemeModeToggle } from './ThemeModeToggle';
