@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Text, View, StyleSheet, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useToast } from '../../../design-system/components';
+import { useStore } from '../../../store';
+import { useAuth } from '../../../auth/AuthContext';
 import {
   ScreenContainer,
   Card,
@@ -25,6 +28,9 @@ const frequencies = ['OD', 'BD', 'TDS', 'QID', 'SOS', 'HS'];
 
 export function IssuePrescription() {
   const router = useRouter();
+  const toast = useToast();
+  const { user } = useAuth();
+  const addPrescription = useStore((s) => s.addPrescription);
   const t = useTheme();
   const role = roleThemes.doctor;
   const [items, setItems] = useState<RxItem[]>([
@@ -129,10 +135,34 @@ export function IssuePrescription() {
         variant="solid"
         gradient={[role.gradientFrom, role.gradientTo]}
         icon={<Send color="#fff" size={18} />}
-        onPress={() => router.back()}
+        onPress={() => {
+          if (items.length === 0) {
+            toast.show('Add at least one medication', 'warning');
+            return;
+          }
+          addPrescription({
+            patientName: 'Saman Kumara',
+            doctorName: user?.name ?? 'Doctor',
+            issuedAt: 'just now',
+            status: 'ACTIVE',
+            items: items.map((it) => ({
+              medication: it.name,
+              dose: it.dose,
+              frequency: it.frequency,
+              duration: it.duration,
+            })),
+          });
+          toast.show('Prescription signed & sent', 'success');
+          router.back();
+        }}
       />
       <View style={{ height: spacing.sm }} />
-      <PrimaryButton label="Save as draft" variant="outline" accent={role.accent} onPress={() => {}} />
+      <PrimaryButton
+        label="Save as draft"
+        variant="outline"
+        accent={role.accent}
+        onPress={() => toast.show('Draft saved', 'info')}
+      />
     </ScreenContainer>
   );
 }

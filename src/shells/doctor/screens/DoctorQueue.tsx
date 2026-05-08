@@ -11,7 +11,7 @@ import {
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
-import { todayQueue } from '../../../data/fixtures';
+import { useStore } from '../../../store';
 import { ScanLine } from 'lucide-react-native';
 import { useAuth } from '../../../auth/AuthContext';
 
@@ -20,7 +20,8 @@ export function DoctorQueue() {
   const t = useTheme();
   const role = roleThemes.doctor;
   const { user } = useAuth();
-  const mine = todayQueue
+  const queue = useStore((s) => s.queue);
+  const mine = queue
     .filter((q) => q.doctor === user?.name)
     .sort((a, b) => b.severity - a.severity);
 

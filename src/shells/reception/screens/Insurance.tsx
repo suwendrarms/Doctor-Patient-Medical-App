@@ -8,17 +8,22 @@ import {
   Avatar,
   ListRow,
   SectionHeader,
+  useToast,
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography, radii } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
-import { insuranceList } from '../../../data/fixtures';
+import { useStore } from '../../../store';
 import { Search, ShieldCheck, Send } from 'lucide-react-native';
+import { Insurance as InsuranceType } from '../../../data/types';
 
 export function Insurance() {
   const t = useTheme();
   const role = roleThemes.reception;
+  const toast = useToast();
+  const insuranceList = useStore((s) => s.insurance);
+  const verifyInsurance = useStore((s) => s.verifyInsurance);
   const [policy, setPolicy] = useState('');
-  const [verified, setVerified] = useState<typeof insuranceList[number] | null>(null);
+  const [verified, setVerified] = useState<InsuranceType | null>(null);
 
   return (
     <ScreenContainer>
@@ -45,7 +50,15 @@ export function Insurance() {
           variant="solid"
           gradient={[role.gradientFrom, role.gradientTo]}
           icon={<Send color="#fff" size={18} />}
-          onPress={() => setVerified(insuranceList[0])}
+          onPress={() => {
+            if (insuranceList.length === 0) {
+              toast.show('No policies on file', 'warning');
+              return;
+            }
+            const found = insuranceList[0];
+            setVerified(found);
+            toast.show(`${found.insurer} - ${found.status}`, 'success');
+          }}
           disabled={!policy}
         />
       </Card>
@@ -86,7 +99,14 @@ export function Insurance() {
               tone={i.status === 'ELIGIBLE' ? 'success' : i.status === 'EXPIRED' ? 'critical' : 'warning'}
             />
           }
-          onPress={() => {}}
+          onPress={() => {
+            if (i.status !== 'ELIGIBLE') {
+              verifyInsurance(i.id);
+              toast.show(`${i.patientName} verified eligible`, 'success');
+            } else {
+              toast.show(`${i.patientName} - already eligible`, 'info');
+            }
+          }}
         />
       ))}
     </ScreenContainer>

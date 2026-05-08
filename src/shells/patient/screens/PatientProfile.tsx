@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Text, View, StyleSheet, Switch } from 'react-native';
+import { Pressable, Text, View, StyleSheet, Switch } from 'react-native';
+import { useRouter } from 'expo-router';
 import {
   ScreenContainer,
   Card,
@@ -8,11 +9,13 @@ import {
   SectionHeader,
   ListRow,
   Pill,
+  useToast,
+  useConfirm,
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
 import { useAuth } from '../../../auth/AuthContext';
-import { familyMembers, consents } from '../../../data/fixtures';
+import { useStore } from '../../../store';
 import {
   Globe,
   Moon,
@@ -21,6 +24,7 @@ import {
   UserPlus,
   LogOut,
   ChevronRight,
+  Trash2,
 } from 'lucide-react-native';
 
 const languages = ['English', 'සිංහල', 'தமிழ்'];
@@ -28,10 +32,53 @@ const languages = ['English', 'සිංහල', 'தமிழ்'];
 export function PatientProfile() {
   const t = useTheme();
   const role = roleThemes.patient;
+  const router = useRouter();
+  const toast = useToast();
+  const confirm = useConfirm();
   const { user, signOut } = useAuth();
+
+  const family = useStore((s) => s.family);
+  const consents = useStore((s) => s.consents);
+  const removeFamily = useStore((s) => s.removeFamilyMember);
+  const revokeConsent = useStore((s) => s.revokeConsent);
+
   const [lang, setLang] = useState('English');
   const [pushOn, setPushOn] = useState(true);
   const [autoRefill, setAutoRefill] = useState(false);
+
+  const onRemoveFamily = async (id: string, name: string) => {
+    const ok = await confirm.ask({
+      title: `Remove ${name}?`,
+      message: 'They will no longer appear in your dependents list.',
+      confirmLabel: 'Remove',
+      destructive: true,
+    });
+    if (!ok) return;
+    removeFamily(id);
+    toast.show(`${name} removed`, 'info');
+  };
+
+  const onRevokeConsent = async (id: string, grantedTo: string) => {
+    const ok = await confirm.ask({
+      title: `Revoke consent for ${grantedTo}?`,
+      message: 'They will no longer be able to access your record under this scope.',
+      confirmLabel: 'Revoke',
+      destructive: true,
+    });
+    if (!ok) return;
+    revokeConsent(id);
+    toast.show(`Consent revoked for ${grantedTo}`, 'success');
+  };
+
+  const onSignOut = async () => {
+    const ok = await confirm.ask({
+      title: 'Sign out?',
+      message: 'You will need to log in again on this device.',
+      confirmLabel: 'Sign out',
+    });
+    if (!ok) return;
+    signOut();
+  };
 
   return (
     <ScreenContainer>
@@ -49,7 +96,11 @@ export function PatientProfile() {
         </View>
       </Card>
 
-      <SectionHeader title="Personal" accent={role.accent} />
+      <SectionHeader
+        title="Personal"
+        accent={role.accent}
+        action={{ label: 'Edit', onPress: () => toast.show('Inline edit available next release', 'info') }}
+      />
       <Card>
         <Field label="Date of birth" value="14 Mar 1985" />
         <Divider />
@@ -65,17 +116,28 @@ export function PatientProfile() {
       <SectionHeader
         title="Family / dependents"
         accent={role.accent}
-        action={{ label: '+ Add', onPress: () => {} }}
+        action={{ label: '+ Add', onPress: () => router.push('/add-family') }}
       />
-      {familyMembers.map((m) => (
-        <ListRow
-          key={m.id}
-          title={m.name}
-          subtitle={`${m.relation} - ${m.age} yrs`}
-          leading={<Avatar name={m.name} gradient={[role.gradientFrom, role.gradientTo]} />}
-          onPress={() => {}}
-        />
-      ))}
+      {family.length === 0 ? (
+        <Card>
+          <Text style={[typography.body, { color: t.textMuted }]}>No dependents added yet.</Text>
+        </Card>
+      ) : (
+        family.map((m) => (
+          <ListRow
+            key={m.id}
+            title={m.name}
+            subtitle={`${m.relation} - ${m.age} yrs`}
+            leading={<Avatar name={m.name} gradient={[role.gradientFrom, role.gradientTo]} />}
+            trailing={
+              <Pressable onPress={() => onRemoveFamily(m.id, m.name)}>
+                <Trash2 size={18} color="#EF4444" />
+              </Pressable>
+            }
+            onPress={() => toast.show(`${m.name} - ${m.relation}`, 'info')}
+          />
+        ))
+      )}
 
       <SectionHeader title="Consent log" accent={role.accent} />
       <Card>
@@ -89,10 +151,13 @@ export function PatientProfile() {
                   {c.scope} - until {c.validUntil}
                 </Text>
               </View>
-              <Pill
-                label={c.status}
-                tone={c.status === 'ACTIVE' ? 'success' : 'neutral'}
-              />
+              {c.status === 'ACTIVE' ? (
+                <Pressable onPress={() => onRevokeConsent(c.id, c.grantedTo)}>
+                  <Pill label="Revoke" tone="critical" />
+                </Pressable>
+              ) : (
+                <Pill label={c.status} tone="neutral" />
+              )}
             </View>
             {i < consents.length - 1 ? <Divider /> : null}
           </View>
@@ -106,8 +171,12 @@ export function PatientProfile() {
           <Text style={[typography.body, { color: t.text, flex: 1 }]}>Language</Text>
           <View style={{ flexDirection: 'row', gap: 6 }}>
             {languages.map((l) => (
-              <View
+              <Pressable
                 key={l}
+                onPress={() => {
+                  setLang(l);
+                  toast.show(`Language set to ${l}`, 'success');
+                }}
                 style={[
                   styles.langChip,
                   {
@@ -117,7 +186,6 @@ export function PatientProfile() {
                 ]}
               >
                 <Text
-                  onPress={() => setLang(l)}
                   style={[
                     typography.caption,
                     { color: l === lang ? '#fff' : t.text, fontWeight: '600' },
@@ -125,7 +193,7 @@ export function PatientProfile() {
                 >
                   {l}
                 </Text>
-              </View>
+              </Pressable>
             ))}
           </View>
         </View>
@@ -139,23 +207,37 @@ export function PatientProfile() {
         <View style={styles.prefRow}>
           <Bell size={20} color={role.accent} />
           <Text style={[typography.body, { color: t.text, flex: 1 }]}>Push notifications</Text>
-          <Switch value={pushOn} onValueChange={setPushOn} trackColor={{ true: role.accent }} />
+          <Switch
+            value={pushOn}
+            onValueChange={(v) => {
+              setPushOn(v);
+              toast.show(v ? 'Push enabled' : 'Push muted', 'info');
+            }}
+            trackColor={{ true: role.accent }}
+          />
         </View>
         <Divider />
         <View style={styles.prefRow}>
           <UserPlus size={20} color={role.accent} />
           <Text style={[typography.body, { color: t.text, flex: 1 }]}>Auto-request refill</Text>
-          <Switch value={autoRefill} onValueChange={setAutoRefill} trackColor={{ true: role.accent }} />
+          <Switch
+            value={autoRefill}
+            onValueChange={(v) => {
+              setAutoRefill(v);
+              toast.show(v ? 'Auto-refill on' : 'Auto-refill off', 'info');
+            }}
+            trackColor={{ true: role.accent }}
+          />
         </View>
       </Card>
 
       <SectionHeader title="Help & legal" accent={role.accent} />
       <Card>
-        <NavRow label="Privacy policy" />
+        <NavRow label="Privacy policy" onPress={() => toast.show('Privacy policy will open in browser', 'info')} />
         <Divider />
-        <NavRow label="Terms of service" />
+        <NavRow label="Terms of service" onPress={() => toast.show('Terms will open in browser', 'info')} />
         <Divider />
-        <NavRow label="Contact support" />
+        <NavRow label="Contact support" onPress={() => toast.show('Support chat opening...', 'info')} />
       </Card>
 
       <View style={{ height: spacing.xl }} />
@@ -164,7 +246,7 @@ export function PatientProfile() {
         variant="outline"
         accent="#EF4444"
         icon={<LogOut size={18} color="#EF4444" />}
-        onPress={signOut}
+        onPress={onSignOut}
       />
     </ScreenContainer>
   );
@@ -180,13 +262,13 @@ function Field({ label, value }: { label: string; value: string }) {
   );
 }
 
-function NavRow({ label }: { label: string }) {
+function NavRow({ label, onPress }: { label: string; onPress: () => void }) {
   const t = useTheme();
   return (
-    <View style={styles.navRow}>
+    <Pressable onPress={onPress} style={styles.navRow}>
       <Text style={[typography.body, { color: t.text, flex: 1 }]}>{label}</Text>
       <ChevronRight size={20} color={t.textMuted} />
-    </View>
+    </Pressable>
   );
 }
 

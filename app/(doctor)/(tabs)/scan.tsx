@@ -2,11 +2,12 @@ import React from 'react';
 import { ScanLine } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { View } from 'react-native';
-import { ScreenContainer, EmptyState, PrimaryButton } from '../../../src/design-system/components';
+import { ScreenContainer, EmptyState, PrimaryButton, useToast } from '../../../src/design-system/components';
 import { roleThemes, spacing } from '../../../src/design-system/tokens';
 
 export default function ScanScreen() {
   const r = roleThemes.doctor;
+  const toast = useToast();
   return (
     <ScreenContainer>
       <View style={{ height: spacing['2xl'] }} />
@@ -26,7 +27,7 @@ export default function ScanScreen() {
             label="Coming soon"
             variant="soft"
             accent={r.accent}
-            onPress={() => {}}
+            onPress={() => toast.show('Camera scanner coming in Phase 2', 'info')}
           />
         }
       />

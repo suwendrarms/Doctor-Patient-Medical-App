@@ -14,7 +14,7 @@ import {
 import { roleThemes, spacing, typography } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
 import { useAuth } from '../../../auth/AuthContext';
-import { facilityKpis, masterUpdates } from '../../../data/fixtures';
+import { useStore } from '../../../store';
 import { Activity, ShieldAlert, Users, Database } from 'lucide-react-native';
 
 export function AdminHome() {
@@ -22,6 +22,8 @@ export function AdminHome() {
   const t = useTheme();
   const role = roleThemes.admin;
   const { user, signOut } = useAuth();
+  const facilityKpis = useStore((s) => s.kpis);
+  const masterUpdates = useStore((s) => s.masterRequests);
   const pending = masterUpdates.filter((m) => m.status === 'PENDING').length;
 
   return (
@@ -35,7 +37,7 @@ export function AdminHome() {
           label="Open Reports"
           variant="solid"
           gradient={['#fff', '#FAE8FF']}
-          onPress={() => {}}
+          onPress={() => router.push('/(admin)/(tabs)/reports')}
           style={{ alignSelf: 'flex-start' }}
         />
       </GradientHero>

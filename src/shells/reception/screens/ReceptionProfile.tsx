@@ -7,6 +7,8 @@ import {
   Avatar,
   Pill,
   SectionHeader,
+  useConfirm,
+  useToast,
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
@@ -19,8 +21,16 @@ export function ReceptionProfile() {
   const t = useTheme();
   const role = roleThemes.reception;
   const { user, signOut } = useAuth();
+  const confirm = useConfirm();
+  const toast = useToast();
   const [lang, setLang] = useState('English');
   const [walkIn, setWalkIn] = useState(true);
+
+  const onSignOut = async () => {
+    const ok = await confirm.ask({ title: 'Sign out?', confirmLabel: 'Sign out' });
+    if (!ok) return;
+    signOut();
+  };
 
   return (
     <ScreenContainer>
@@ -81,7 +91,14 @@ export function ReceptionProfile() {
         <View style={styles.prefRow}>
           <Bell size={20} color={role.accent} />
           <Text style={[typography.body, { color: t.text, flex: 1 }]}>Auto-suggest walk-in slot</Text>
-          <Switch value={walkIn} onValueChange={setWalkIn} trackColor={{ true: role.accent }} />
+          <Switch
+            value={walkIn}
+            onValueChange={(v) => {
+              setWalkIn(v);
+              toast.show(v ? 'Auto walk-in suggestions on' : 'Manual mode', 'info');
+            }}
+            trackColor={{ true: role.accent }}
+          />
         </View>
       </Card>
 
@@ -91,7 +108,7 @@ export function ReceptionProfile() {
         variant="outline"
         accent="#EF4444"
         icon={<LogOut size={18} color="#EF4444" />}
-        onPress={signOut}
+        onPress={onSignOut}
       />
     </ScreenContainer>
   );

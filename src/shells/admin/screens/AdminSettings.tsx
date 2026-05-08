@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Text, View, StyleSheet, Switch } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -8,11 +8,13 @@ import {
   Pill,
   ListRow,
   SectionHeader,
+  useToast,
+  useConfirm,
 } from '../../../design-system/components';
+import { useStore } from '../../../store';
 import { roleThemes, spacing, typography } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
 import { useAuth } from '../../../auth/AuthContext';
-import { branches, featureFlags } from '../../../data/fixtures';
 import {
   Building2,
   Flag,
@@ -29,10 +31,23 @@ export function AdminSettings() {
   const t = useTheme();
   const role = roleThemes.admin;
   const { signOut } = useAuth();
-  const [flags, setFlags] = useState(featureFlags);
+  const toast = useToast();
+  const confirm = useConfirm();
+  const branches = useStore((s) => s.branches);
+  const flags = useStore((s) => s.flags);
+  const toggleFlag = useStore((s) => s.toggleFlag);
 
-  const toggle = (code: string) =>
-    setFlags((prev) => prev.map((f) => (f.code === code ? { ...f, enabled: !f.enabled } : f)));
+  const toggle = (code: string) => {
+    toggleFlag(code);
+    const f = flags.find((x) => x.code === code);
+    toast.show(`${code} ${f?.enabled ? 'disabled' : 'enabled'}`, 'success');
+  };
+
+  const onSignOut = async () => {
+    const ok = await confirm.ask({ title: 'Sign out?', confirmLabel: 'Sign out' });
+    if (!ok) return;
+    signOut();
+  };
 
   return (
     <ScreenContainer>
@@ -41,7 +56,7 @@ export function AdminSettings() {
         Branches, feature flags, integrations, retention and audit.
       </Text>
 
-      <SectionHeader title="Branches" accent={role.accent} action={{ label: '+ Add', onPress: () => {} }} />
+      <SectionHeader title="Branches" accent={role.accent} action={{ label: '+ Add', onPress: () => toast.show('Add-branch flow coming soon', 'info') }} />
       {branches.map((b) => (
         <ListRow
           key={b.id}
@@ -54,7 +69,7 @@ export function AdminSettings() {
               tone={b.status === 'ACTIVE' ? 'success' : 'warning'}
             />
           }
-          onPress={() => {}}
+          onPress={() => toast.show(`${b.name} - ${b.code}`, 'info')}
         />
       ))}
 
@@ -108,7 +123,7 @@ export function AdminSettings() {
         variant="outline"
         accent="#EF4444"
         icon={<LogOut size={18} color="#EF4444" />}
-        onPress={signOut}
+        onPress={onSignOut}
       />
     </ScreenContainer>
   );

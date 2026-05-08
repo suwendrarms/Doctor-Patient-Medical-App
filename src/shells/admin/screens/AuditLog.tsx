@@ -6,6 +6,7 @@ import {
   Pill,
   PrimaryButton,
   SectionHeader,
+  useToast,
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography, radii } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
@@ -22,6 +23,7 @@ const levelMeta: Record<AuditEvent['level'], { tone: any; icon: any }> = {
 export function AuditLog() {
   const t = useTheme();
   const role = roleThemes.admin;
+  const toast = useToast();
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState<'ALL' | AuditEvent['level']>('ALL');
 
@@ -108,7 +110,7 @@ export function AuditLog() {
         variant="solid"
         gradient={[role.gradientFrom, role.gradientTo]}
         icon={<Download color="#fff" size={18} />}
-        onPress={() => {}}
+        onPress={() => toast.show(`Exported ${list.length} events to CSV`, 'success')}
       />
     </ScreenContainer>
   );

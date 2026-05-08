@@ -7,6 +7,7 @@ import {
   PrimaryButton,
   Pill,
   SectionHeader,
+  useToast,
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography, radii } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
@@ -16,6 +17,7 @@ import { Download, BarChart3 } from 'lucide-react-native';
 export function Reports() {
   const t = useTheme();
   const role = roleThemes.admin;
+  const toast = useToast();
   const max = Math.max(...reportsData.patientsThisWeek);
 
   return (
@@ -100,7 +102,7 @@ export function Reports() {
         variant="solid"
         gradient={[role.gradientFrom, role.gradientTo]}
         icon={<Download color="#fff" size={18} />}
-        onPress={() => {}}
+        onPress={() => toast.show('Report exported to PDF', 'success')}
       />
       <View style={{ height: spacing.sm }} />
       <PrimaryButton
@@ -108,7 +110,7 @@ export function Reports() {
         variant="outline"
         accent={role.accent}
         icon={<BarChart3 color={role.accent} size={18} />}
-        onPress={() => {}}
+        onPress={() => toast.show('Weekly digest scheduled', 'success')}
       />
     </ScreenContainer>
   );

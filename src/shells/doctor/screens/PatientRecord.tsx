@@ -11,7 +11,7 @@ import {
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
-import { lastVitals, todayQueue } from '../../../data/fixtures';
+import { useStore } from '../../../store';
 import { Activity, Pill as PillIcon, Plus, FileText } from 'lucide-react-native';
 
 export function PatientRecord() {
@@ -19,8 +19,10 @@ export function PatientRecord() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const t = useTheme();
   const role = roleThemes.doctor;
+  const queue = useStore((s) => s.queue);
+  const vitals = useStore((s) => s.vitals);
   const patient =
-    todayQueue.find((q) => q.id === id) ??
+    queue.find((q) => q.id === id) ??
     { id: '', patientName: 'Patient', reason: '', number: 0 };
 
   return (
@@ -42,10 +44,10 @@ export function PatientRecord() {
       <SectionHeader title="Latest vitals" accent={role.accent} />
       <Card>
         <View style={styles.vitalsGrid}>
-          <Vital label="Blood pressure" value={lastVitals.bp} unit="mmHg" tone="info" />
-          <Vital label="Pulse" value={String(lastVitals.pulse)} unit="bpm" tone="success" />
-          <Vital label="Temperature" value={String(lastVitals.temperature)} unit="degC" tone="success" />
-          <Vital label="SpO2" value={String(lastVitals.spo2)} unit="%" tone="success" />
+          <Vital label="Blood pressure" value={vitals.bp} unit="mmHg" tone="info" />
+          <Vital label="Pulse" value={String(vitals.pulse)} unit="bpm" tone="success" />
+          <Vital label="Temperature" value={String(vitals.temperature)} unit="degC" tone="success" />
+          <Vital label="SpO2" value={String(vitals.spo2)} unit="%" tone="success" />
         </View>
       </Card>
 

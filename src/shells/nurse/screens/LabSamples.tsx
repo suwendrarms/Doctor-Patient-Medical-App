@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View } from 'react-native';
 import {
   ScreenContainer,
   Card,
@@ -8,10 +8,11 @@ import {
   Avatar,
   ListRow,
   SectionHeader,
+  useToast,
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
-import { labSamples } from '../../../data/fixtures';
+import { useStore } from '../../../store';
 import { ScanBarcode, Printer, FlaskConical } from 'lucide-react-native';
 import { LabSample } from '../../../data/types';
 
@@ -22,10 +23,28 @@ const statusTone: Record<LabSample['status'], 'warning' | 'info' | 'success' | '
   RESULT_READY: 'success',
 };
 
+const next: Record<LabSample['status'], { next: LabSample['status'] | null; label: string }> = {
+  PENDING_COLLECTION: { next: 'COLLECTED', label: 'Mark collected' },
+  COLLECTED: { next: 'IN_LAB', label: 'Send to lab' },
+  IN_LAB: { next: 'RESULT_READY', label: 'Mark result ready' },
+  RESULT_READY: { next: null, label: 'Done' },
+};
+
 export function LabSamples() {
   const t = useTheme();
   const role = roleThemes.nurse;
+  const toast = useToast();
+  const labSamples = useStore((s) => s.labSamples);
+  const setLabStatus = useStore((s) => s.setLabStatus);
+
   const groups = ['PENDING_COLLECTION', 'COLLECTED', 'IN_LAB', 'RESULT_READY'] as const;
+
+  const advance = (s: LabSample) => {
+    const n = next[s.status].next;
+    if (!n) return;
+    setLabStatus(s.id, n);
+    toast.show(`${s.barcode} -> ${prettyStatus(n)}`, 'success');
+  };
 
   return (
     <ScreenContainer>
@@ -40,7 +59,7 @@ export function LabSamples() {
           variant="solid"
           gradient={[role.gradientFrom, role.gradientTo]}
           icon={<ScanBarcode color="#fff" size={18} />}
-          onPress={() => {}}
+          onPress={() => toast.show('Camera opening for barcode...', 'info')}
           style={{ flex: 1 }}
         />
         <PrimaryButton
@@ -48,7 +67,7 @@ export function LabSamples() {
           variant="outline"
           accent={role.accent}
           icon={<Printer color={role.accent} size={18} />}
-          onPress={() => {}}
+          onPress={() => toast.show('Sent to label printer', 'success')}
           style={{ flex: 1 }}
         />
       </View>
@@ -60,17 +79,26 @@ export function LabSamples() {
           <View key={g}>
             <SectionHeader title={titleOf(g)} accent={role.accent} />
             {list.map((s) => (
-              <ListRow
-                key={s.id}
-                title={s.testName}
-                subtitle={`${s.patientName} - ${s.sampleType}`}
-                meta={`${s.barcode} - ${s.collectedAt ?? 'awaiting'} - by ${s.doctor}`}
-                leading={<Avatar name={s.patientName} gradient={[role.gradientFrom, role.gradientTo]} />}
-                trailing={
-                  <Pill label={prettyStatus(s.status)} tone={statusTone[s.status]} />
-                }
-                onPress={() => {}}
-              />
+              <View key={s.id} style={{ marginBottom: spacing.md }}>
+                <ListRow
+                  title={s.testName}
+                  subtitle={`${s.patientName} - ${s.sampleType}`}
+                  meta={`${s.barcode} - ${s.collectedAt ?? 'awaiting'} - by ${s.doctor}`}
+                  leading={<Avatar name={s.patientName} gradient={[role.gradientFrom, role.gradientTo]} />}
+                  trailing={<Pill label={prettyStatus(s.status)} tone={statusTone[s.status]} />}
+                  onPress={() => toast.show(`${s.testName} - ${s.barcode}`, 'info')}
+                />
+                {next[s.status].next ? (
+                  <View style={{ marginTop: -spacing.md + 4 }}>
+                    <PrimaryButton
+                      label={next[s.status].label}
+                      variant="soft"
+                      accent={role.accent}
+                      onPress={() => advance(s)}
+                    />
+                  </View>
+                ) : null}
+              </View>
             ))}
           </View>
         );
@@ -81,9 +109,12 @@ export function LabSamples() {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
           <FlaskConical color={role.accent} size={22} />
           <View style={{ flex: 1 }}>
-            <Text style={[typography.bodyBold, { color: t.text }]}>Today: 14 samples</Text>
+            <Text style={[typography.bodyBold, { color: t.text }]}>
+              Today: {labSamples.length} samples
+            </Text>
             <Text style={[typography.caption, { color: t.textMuted }]}>
-              0 lost - 4 awaiting collection - SLA on track
+              0 lost - {labSamples.filter((s) => s.status === 'PENDING_COLLECTION').length} awaiting
+              collection - SLA on track
             </Text>
           </View>
         </View>
@@ -108,5 +139,3 @@ function titleOf(s: LabSample['status']) {
 function prettyStatus(s: LabSample['status']) {
   return s.toLowerCase().replace(/_/g, ' ');
 }
-
-const styles = StyleSheet.create({});

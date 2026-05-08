@@ -1,19 +1,26 @@
 import React, { useState } from 'react';
 import { Text, View, StyleSheet, TextInput } from 'react-native';
+import { useRouter } from 'expo-router';
 import {
   ScreenContainer,
   Card,
   PrimaryButton,
   Pill,
   SectionHeader,
+  useToast,
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography, radii } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
+import { useStore } from '../../../store';
 import { Heart, Thermometer, Activity, Droplets, Scale } from 'lucide-react-native';
 
 export function CaptureVitals() {
   const t = useTheme();
   const role = roleThemes.nurse;
+  const router = useRouter();
+  const toast = useToast();
+  const saveVitals = useStore((s) => s.saveVitals);
+  const logAudit = useStore((s) => s.logAudit);
   const [bp, setBp] = useState('128/82');
   const [pulse, setPulse] = useState('78');
   const [temp, setTemp] = useState('36.8');
@@ -55,7 +62,26 @@ export function CaptureVitals() {
         label="Save and route to doctor"
         variant="solid"
         gradient={[role.gradientFrom, role.gradientTo]}
-        onPress={() => {}}
+        onPress={() => {
+          saveVitals({
+            bp,
+            pulse: parseInt(pulse, 10) || 0,
+            temperature: parseFloat(temp) || 0,
+            spo2: parseInt(spo2, 10) || 0,
+            weight: parseFloat(weight) || 0,
+            height: 174,
+          });
+          logAudit({
+            actor: 'Anushka Jayasuriya',
+            role: 'Nurse',
+            action: 'VITALS.CAPTURE',
+            target: 'Visit #2210',
+            ip: '10.10.2.9',
+            level: severity >= 4 ? 'WARN' : 'INFO',
+          });
+          toast.show('Vitals saved - routed to doctor', 'success');
+          router.back();
+        }}
       />
     </ScreenContainer>
   );

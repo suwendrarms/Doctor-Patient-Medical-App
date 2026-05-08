@@ -1,7 +1,7 @@
 import React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { Pressable, Text, View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ScanLine, AlertTriangle, Stethoscope, Activity } from 'lucide-react-native';
+import { ScanLine, AlertTriangle, Stethoscope, Activity, Bell } from 'lucide-react-native';
 import {
   ScreenContainer,
   GradientHero,
@@ -12,19 +12,28 @@ import {
   PrimaryButton,
   Avatar,
   Pill,
+  useConfirm,
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
 import { useAuth } from '../../../auth/AuthContext';
-import { todayQueue } from '../../../data/fixtures';
+import { useStore } from '../../../store';
 
 export function DoctorHome() {
   const router = useRouter();
   const t = useTheme();
   const role = roleThemes.doctor;
   const { user, signOut } = useAuth();
-  const myCases = todayQueue.filter((q) => q.doctor === user?.name);
+  const confirm = useConfirm();
+  const queue = useStore((s) => s.queue);
+  const myCases = queue.filter((q) => q.doctor === user?.name);
   const critical = myCases.filter((q) => q.severity >= 4).length;
+
+  const onSignOut = async () => {
+    const ok = await confirm.ask({ title: 'Sign out?', confirmLabel: 'Sign out' });
+    if (!ok) return;
+    signOut();
+  };
 
   return (
     <ScreenContainer>
@@ -32,6 +41,11 @@ export function DoctorHome() {
         role={role}
         greeting={`Good morning, ${user?.name.split(' ').slice(-1)[0]}`}
         subtitle={`${myCases.length} patients in your queue today.`}
+        rightSlot={
+          <Pressable onPress={() => router.push('/notifications')} style={{ padding: 4 }}>
+            <Bell color="#fff" size={22} />
+          </Pressable>
+        }
       >
         <PrimaryButton
           label="Scan Patient QR"
@@ -92,7 +106,7 @@ export function DoctorHome() {
       </Card>
 
       <View style={{ height: spacing.xl }} />
-      <PrimaryButton label="Sign out (demo)" variant="outline" accent={role.accent} onPress={signOut} />
+      <PrimaryButton label="Sign out" variant="outline" accent={role.accent} onPress={onSignOut} />
     </ScreenContainer>
   );
 }

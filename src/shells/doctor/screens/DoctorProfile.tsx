@@ -7,6 +7,8 @@ import {
   Avatar,
   Pill,
   SectionHeader,
+  useConfirm,
+  useToast,
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
@@ -17,8 +19,16 @@ export function DoctorProfile() {
   const t = useTheme();
   const role = roleThemes.doctor;
   const { user, signOut } = useAuth();
+  const confirm = useConfirm();
+  const toast = useToast();
   const [autoFollowup, setAutoFollowup] = useState(true);
   const [criticalOnly, setCriticalOnly] = useState(false);
+
+  const onSignOut = async () => {
+    const ok = await confirm.ask({ title: 'Sign out?', confirmLabel: 'Sign out' });
+    if (!ok) return;
+    signOut();
+  };
 
   return (
     <ScreenContainer>
@@ -57,13 +67,27 @@ export function DoctorProfile() {
         <View style={styles.prefRow}>
           <BellRing size={20} color={role.accent} />
           <Text style={[typography.body, { color: t.text, flex: 1 }]}>Auto follow-up reminders</Text>
-          <Switch value={autoFollowup} onValueChange={setAutoFollowup} trackColor={{ true: role.accent }} />
+          <Switch
+            value={autoFollowup}
+            onValueChange={(v) => {
+              setAutoFollowup(v);
+              toast.show(v ? 'Follow-up reminders on' : 'Follow-up reminders off', 'info');
+            }}
+            trackColor={{ true: role.accent }}
+          />
         </View>
         <Divider />
         <View style={styles.prefRow}>
           <BellRing size={20} color={role.accent} />
           <Text style={[typography.body, { color: t.text, flex: 1 }]}>Critical alerts only after 8 PM</Text>
-          <Switch value={criticalOnly} onValueChange={setCriticalOnly} trackColor={{ true: role.accent }} />
+          <Switch
+            value={criticalOnly}
+            onValueChange={(v) => {
+              setCriticalOnly(v);
+              toast.show(v ? 'Quiet hours active' : 'Quiet hours off', 'info');
+            }}
+            trackColor={{ true: role.accent }}
+          />
         </View>
       </Card>
 
@@ -73,7 +97,7 @@ export function DoctorProfile() {
         variant="outline"
         accent="#EF4444"
         icon={<LogOut size={18} color="#EF4444" />}
-        onPress={signOut}
+        onPress={onSignOut}
       />
     </ScreenContainer>
   );

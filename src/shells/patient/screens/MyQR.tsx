@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
+import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import QRCode from 'react-native-qrcode-svg';
 import { ShieldCheck, RefreshCw, Clock } from 'lucide-react-native';
@@ -17,6 +18,7 @@ import { useAuth } from '../../../auth/AuthContext';
 export function MyQR() {
   const t = useTheme();
   const role = roleThemes.patient;
+  const router = useRouter();
   const { user } = useAuth();
   const [token, setToken] = useState(genToken());
   const [secondsLeft, setSecondsLeft] = useState(60);
@@ -94,7 +96,7 @@ export function MyQR() {
         variant="outline"
         accent={role.accent}
         icon={<ShieldCheck color={role.accent} size={18} />}
-        onPress={() => {}}
+        onPress={() => router.push('/(patient)/(tabs)/profile')}
       />
     </ScreenContainer>
   );

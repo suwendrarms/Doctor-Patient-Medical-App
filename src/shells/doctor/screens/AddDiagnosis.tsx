@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Text, View, StyleSheet, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useToast } from '../../../design-system/components';
+import { useStore } from '../../../store';
 import {
   ScreenContainer,
   Card,
@@ -21,6 +23,8 @@ const suggestions = [
 
 export function AddDiagnosis() {
   const router = useRouter();
+  const toast = useToast();
+  const logAudit = useStore((s) => s.logAudit);
   const t = useTheme();
   const role = roleThemes.doctor;
   const [q, setQ] = useState('');
@@ -102,7 +106,7 @@ export function AddDiagnosis() {
             variant="soft"
             accent={role.accent}
             icon={<Mic size={16} color={role.accent} />}
-            onPress={() => {}}
+            onPress={() => toast.show('Voice transcription coming soon', 'info')}
             style={{ flex: 1 }}
           />
         </View>
@@ -123,14 +127,36 @@ export function AddDiagnosis() {
         label="Save diagnosis"
         variant="solid"
         gradient={[role.gradientFrom, role.gradientTo]}
-        onPress={() => router.back()}
+        onPress={() => {
+          logAudit({
+            actor: 'Dr. Samanthi',
+            role: 'Doctor',
+            action: 'DIAGNOSIS.ADD',
+            target: selected?.code ?? 'PENDING',
+            ip: '10.10.2.14',
+            level: 'INFO',
+          });
+          toast.show('Diagnosis saved', 'success');
+          router.back();
+        }}
       />
       <View style={{ height: spacing.sm }} />
       <PrimaryButton
         label="Save & issue prescription"
         variant="outline"
         accent={role.accent}
-        onPress={() => router.replace('/(doctor)/issue-prescription')}
+        onPress={() => {
+          logAudit({
+            actor: 'Dr. Samanthi',
+            role: 'Doctor',
+            action: 'DIAGNOSIS.ADD',
+            target: selected?.code ?? 'PENDING',
+            ip: '10.10.2.14',
+            level: 'INFO',
+          });
+          toast.show('Diagnosis saved - issuing Rx', 'success');
+          router.replace('/(doctor)/issue-prescription');
+        }}
       />
     </ScreenContainer>
   );

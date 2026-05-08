@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { Pressable, Text, View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
   ScreenContainer,
@@ -11,19 +11,29 @@ import {
   Avatar,
   Pill,
   ListRow,
+  useConfirm,
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
 import { useAuth } from '../../../auth/AuthContext';
-import { todayQueue } from '../../../data/fixtures';
-import { ScanLine, Users, Clock } from 'lucide-react-native';
+import { useStore } from '../../../store';
+import { ScanLine, Users, Clock, Bell } from 'lucide-react-native';
 
 export function ReceptionHome() {
   const router = useRouter();
   const t = useTheme();
   const role = roleThemes.reception;
   const { user, signOut } = useAuth();
-  const waiting = todayQueue.filter((q) => q.status === 'WAITING').length;
+  const confirm = useConfirm();
+  const queue = useStore((s) => s.queue);
+  const waiting = queue.filter((q) => q.status === 'WAITING').length;
+  const todayQueue = queue;
+
+  const onSignOut = async () => {
+    const ok = await confirm.ask({ title: 'Sign out?', confirmLabel: 'Sign out' });
+    if (!ok) return;
+    signOut();
+  };
 
   return (
     <ScreenContainer>
@@ -31,6 +41,11 @@ export function ReceptionHome() {
         role={role}
         greeting={`Welcome, ${user?.name.split(' ')[0]}`}
         subtitle="Front desk - keep the queue moving."
+        rightSlot={
+          <Pressable onPress={() => router.push('/notifications')} style={{ padding: 4 }}>
+            <Bell color="#fff" size={22} />
+          </Pressable>
+        }
       >
         <PrimaryButton
           label="Check-in by QR"
@@ -62,12 +77,12 @@ export function ReceptionHome() {
           meta={`${q.arrivedAt} - ${q.doctor}`}
           leading={<Avatar name={q.patientName} gradient={[role.gradientFrom, role.gradientTo]} />}
           trailing={<Pill label={q.status} tone={q.status === 'TRIAGED' ? 'success' : 'info'} />}
-          onPress={() => {}}
+          onPress={() => router.push('/(reception)/queue')}
         />
       ))}
 
       <View style={{ height: spacing.xl }} />
-      <PrimaryButton label="Sign out (demo)" variant="outline" accent={role.accent} onPress={signOut} />
+      <PrimaryButton label="Sign out (demo)" variant="outline" accent={role.accent} onPress={onSignOut} />
     </ScreenContainer>
   );
 }

@@ -7,6 +7,8 @@ import {
   Avatar,
   Pill,
   SectionHeader,
+  useConfirm,
+  useToast,
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
@@ -17,8 +19,16 @@ export function NurseProfile() {
   const t = useTheme();
   const role = roleThemes.nurse;
   const { user, signOut } = useAuth();
+  const confirm = useConfirm();
+  const toast = useToast();
   const [doseAlerts, setDoseAlerts] = useState(true);
   const [requireBarcode, setRequireBarcode] = useState(true);
+
+  const onSignOut = async () => {
+    const ok = await confirm.ask({ title: 'Sign out?', confirmLabel: 'Sign out' });
+    if (!ok) return;
+    signOut();
+  };
 
   return (
     <ScreenContainer>
@@ -57,7 +67,14 @@ export function NurseProfile() {
         <View style={styles.prefRow}>
           <Bell size={20} color={role.accent} />
           <Text style={[typography.body, { color: t.text, flex: 1 }]}>Medication-due alerts</Text>
-          <Switch value={doseAlerts} onValueChange={setDoseAlerts} trackColor={{ true: role.accent }} />
+          <Switch
+            value={doseAlerts}
+            onValueChange={(v) => {
+              setDoseAlerts(v);
+              toast.show(v ? 'Dose alerts on' : 'Dose alerts off', 'info');
+            }}
+            trackColor={{ true: role.accent }}
+          />
         </View>
         <Divider />
         <View style={styles.prefRow}>
@@ -67,7 +84,10 @@ export function NurseProfile() {
           </Text>
           <Switch
             value={requireBarcode}
-            onValueChange={setRequireBarcode}
+            onValueChange={(v) => {
+              setRequireBarcode(v);
+              toast.show(v ? 'Barcode required' : 'Barcode optional - audit risk', 'warning');
+            }}
             trackColor={{ true: role.accent }}
           />
         </View>
@@ -79,7 +99,7 @@ export function NurseProfile() {
         variant="outline"
         accent="#EF4444"
         icon={<LogOut size={18} color="#EF4444" />}
-        onPress={signOut}
+        onPress={onSignOut}
       />
     </ScreenContainer>
   );

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Text, View, TextInput, StyleSheet } from 'react-native';
+import { Pressable, Text, View, TextInput, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
 import {
   ScreenContainer,
   ListRow,
@@ -7,19 +8,46 @@ import {
   Pill,
   PrimaryButton,
   SectionHeader,
+  useToast,
+  useConfirm,
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography, radii } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
-import { userManagementSeed } from '../../../data/fixtures';
+import { useStore } from '../../../store';
 import { Search, UserPlus } from 'lucide-react-native';
 
 export function UserManagement() {
   const t = useTheme();
   const role = roleThemes.admin;
+  const router = useRouter();
+  const toast = useToast();
+  const confirm = useConfirm();
+
+  const users = useStore((s) => s.users);
+  const setUserStatus = useStore((s) => s.setUserStatus);
+
   const [q, setQ] = useState('');
-  const list = userManagementSeed.filter(
+  const list = users.filter(
     (u) => u.name.toLowerCase().includes(q.toLowerCase()) || u.role.toLowerCase().includes(q.toLowerCase()),
   );
+
+  const onToggleStatus = async (id: string, name: string, current: string) => {
+    const ok = await confirm.ask({
+      title: current === 'ACTIVE' ? `Deactivate ${name}?` : `Activate ${name}?`,
+      message:
+        current === 'ACTIVE'
+          ? 'They will lose access until reactivated.'
+          : 'They will be able to sign in immediately.',
+      confirmLabel: current === 'ACTIVE' ? 'Deactivate' : 'Activate',
+      destructive: current === 'ACTIVE',
+    });
+    if (!ok) return;
+    setUserStatus(id, current === 'ACTIVE' ? 'INVITED' : 'ACTIVE');
+    toast.show(
+      `${name} ${current === 'ACTIVE' ? 'deactivated' : 'activated'}`,
+      current === 'ACTIVE' ? 'warning' : 'success',
+    );
+  };
 
   return (
     <ScreenContainer>
@@ -41,16 +69,17 @@ export function UserManagement() {
 
       <SectionHeader title={`${list.length} users`} accent={role.accent} />
       {list.map((u) => (
-        <ListRow
-          key={u.id}
-          title={u.name}
-          subtitle={`${u.role} - ${u.branch}`}
-          leading={<Avatar name={u.name} gradient={[role.gradientFrom, role.gradientTo]} />}
-          trailing={
-            <Pill label={u.status} tone={u.status === 'ACTIVE' ? 'success' : 'warning'} />
-          }
-          onPress={() => {}}
-        />
+        <Pressable key={u.id} onPress={() => onToggleStatus(u.id, u.name, u.status)}>
+          <ListRow
+            title={u.name}
+            subtitle={`${u.role} - ${u.branch}`}
+            leading={<Avatar name={u.name} gradient={[role.gradientFrom, role.gradientTo]} />}
+            trailing={
+              <Pill label={u.status} tone={u.status === 'ACTIVE' ? 'success' : 'warning'} />
+            }
+            onPress={() => onToggleStatus(u.id, u.name, u.status)}
+          />
+        </Pressable>
       ))}
 
       <View style={{ height: spacing.xl }} />
@@ -59,7 +88,7 @@ export function UserManagement() {
         variant="solid"
         gradient={[role.gradientFrom, role.gradientTo]}
         icon={<UserPlus color="#fff" size={18} />}
-        onPress={() => {}}
+        onPress={() => router.push('/add-user')}
       />
     </ScreenContainer>
   );

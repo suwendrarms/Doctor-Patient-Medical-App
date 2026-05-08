@@ -8,17 +8,20 @@ import {
   Pill,
   Avatar,
   SectionHeader,
+  useToast,
 } from '../../../design-system/components';
 import { roleThemes, spacing, typography, radii } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
-import { teleSessions } from '../../../data/fixtures';
-import { Video, Phone, Mic, MicOff, VideoOff, PhoneOff } from 'lucide-react-native';
+import { useStore } from '../../../store';
+import { Video, Phone, Mic, MicOff, VideoOff } from 'lucide-react-native';
 
 export function Telemedicine() {
   const t = useTheme();
   const role = roleThemes.doctor;
-  const upcoming = teleSessions.filter((s) => s.status === 'SCHEDULED');
-  const past = teleSessions.filter((s) => s.status === 'COMPLETED');
+  const toast = useToast();
+  const sessions = useStore((s) => s.telemedicine);
+  const upcoming = sessions.filter((s) => s.status === 'SCHEDULED');
+  const past = sessions.filter((s) => s.status === 'COMPLETED');
 
   return (
     <ScreenContainer>
@@ -74,7 +77,7 @@ export function Telemedicine() {
                 variant="solid"
                 gradient={[role.gradientFrom, role.gradientTo]}
                 icon={<Video color="#fff" size={16} />}
-                onPress={() => {}}
+                onPress={() => toast.show(`Connecting to ${s.patientName}...`, 'info')}
               />
             </View>
           </Card>

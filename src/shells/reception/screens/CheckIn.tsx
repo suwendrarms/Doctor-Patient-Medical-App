@@ -9,13 +9,17 @@ import {
   Pill,
   Avatar,
   SectionHeader,
+  useToast,
 } from '../../../design-system/components';
+import { useStore } from '../../../store';
 import { roleThemes, spacing, typography, radii } from '../../../design-system/tokens';
 import { useTheme } from '../../../design-system/theme';
 
 export function CheckIn() {
   const t = useTheme();
   const role = roleThemes.reception;
+  const toast = useToast();
+  const addQueue = useStore((s) => s.addQueueEntry);
   const [scanned, setScanned] = useState(false);
 
   return (
@@ -56,7 +60,7 @@ export function CheckIn() {
         variant="outline"
         accent={role.accent}
         icon={<Search color={role.accent} size={18} />}
-        onPress={() => {}}
+        onPress={() => toast.show('Manual search coming soon', 'info')}
       />
 
       {scanned ? (
@@ -93,7 +97,18 @@ export function CheckIn() {
             label="Confirm check-in"
             variant="solid"
             gradient={[role.gradientFrom, role.gradientTo]}
-            onPress={() => setScanned(false)}
+            onPress={() => {
+              const entry = addQueue({
+                patientName: 'Saman Kumara',
+                reason: 'Walk-in',
+                arrivedAt: 'just now',
+                severity: 2,
+                status: 'WAITING',
+                doctor: 'Dr. Samanthi Fernando',
+              });
+              toast.show(`Token #${entry.number} - Saman Kumara`, 'success');
+              setScanned(false);
+            }}
           />
         </>
       ) : null}
